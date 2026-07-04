@@ -23,7 +23,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -I$(BUILD_DIR) -I$(SRC_DIR) -c $< -o $@
 
 clean:
-	rm -f zelx $(BUILD_DIR)/*.c $(BUILD_DIR)/*.h $(BUILD_DIR)/*.o output.c test
+	rm -f zelx $(BUILD_DIR)/*.c $(BUILD_DIR)/*.h $(BUILD_DIR)/*.o output.c test_bin
 
 test: zelx
 	@echo 'nama = "Budi"' > test.zx
@@ -32,7 +32,7 @@ test: zelx
 	@echo 'active = true' >> test.zx
 	@echo 'const VERSION = "1.0.0"' >> test.zx
 	./zelx test.zx
-	gcc output.c -o test
-	./test
+	gcc output.c -o test_bin
+	./test_bin
 
 .PHONY: all clean test

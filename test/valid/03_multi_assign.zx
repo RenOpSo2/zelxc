@@ -1,0 +1,9 @@
+# Mixed-type dynamic multi-assignments
+x, y = 10, 20
+a, b, c = "satu", 2.5, true
+
+print("x:", x)
+print("y:", y)
+print("a:", a)
+print("b:", b)
+print("c:", c)

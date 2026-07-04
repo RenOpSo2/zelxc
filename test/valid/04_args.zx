@@ -1,0 +1,6 @@
+# Built-in CLI arguments array
+first_arg = args[0]
+second_arg = args[1]
+
+print("First CLI argument:", first_arg)
+print("Second CLI argument:", second_arg)

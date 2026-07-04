@@ -61,6 +61,7 @@ void codegen_finish();
 void codegen_assign(struct AssignmentNode* node);
 void codegen_const_assign(struct AssignmentNode* node);
 void codegen_multi_assign(struct MultiAssignNode* node);
+void codegen_print(struct ValueList* args);
 
 #endif
 

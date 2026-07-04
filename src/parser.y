@@ -25,7 +25,7 @@ void yyerror(const char* s) {
     struct ValueList* val_list;
 }
 
-%token CONST
+%token CONST PRINT LPAREN RPAREN
 %token ASSIGN COMMA COLON
 %token LBRACKET RBRACKET LBRACE RBRACE
 %token <intval> INT_LIT BOOL_LIT
@@ -36,7 +36,7 @@ void yyerror(const char* s) {
 %type <assign_node> single_assign
 %type <multi_assign> multi_assign
 %type <str_list> identifier_list
-%type <val_list> value_list array array_elements
+%type <val_list> value_list array array_elements print_args
 
 %start program
 
@@ -55,6 +55,7 @@ statement:
     single_assign      { codegen_assign($1); }
     | const_assign     { /* handled in const_assign */ }
     | multi_assign     { codegen_multi_assign($1); }
+    | PRINT LPAREN print_args RPAREN { codegen_print($3); }
     ;
 
 single_assign:
@@ -90,6 +91,15 @@ value_list:
         $$ = append_value_list($$, $3);
     }
     | value_list COMMA value {
+        $$ = append_value_list($1, $3);
+    }
+    ;
+
+print_args:
+    value {
+        $$ = create_value_list($1, NULL);
+    }
+    | print_args COMMA value {
         $$ = append_value_list($1, $3);
     }
     ;

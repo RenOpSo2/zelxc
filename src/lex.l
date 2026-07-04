@@ -11,6 +11,7 @@
 [ \t\n\r]+            { /* ignore whitespace */ }
 
 "const"               { return CONST; }
+"print"               { return PRINT; }
 "true"                { yylval.intval = 1; return BOOL_LIT; }
 "false"               { yylval.intval = 0; return BOOL_LIT; }
 
@@ -21,6 +22,8 @@
 "]"                   { return RBRACKET; }
 "{"                   { return LBRACE; }
 "}"                   { return RBRACE; }
+"("                   { return LPAREN; }
+")"                   { return RPAREN; }
 
 [0-9]+"."[0-9]+       { yylval.floatval = atof(yytext); return FLOAT_LIT; }
 [0-9]+                { yylval.intval = atoi(yytext); return INT_LIT; }

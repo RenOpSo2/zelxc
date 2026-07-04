@@ -1,0 +1,12 @@
+# Basic variables and constants
+nama = "Budi"
+umur = 25
+berat = 70.5
+active = true
+const VERSION = "1.0.0"
+
+print("Nama:", nama)
+print("Umur:", umur)
+print("Berat:", berat)
+print("Active:", active)
+print("Version:", VERSION)

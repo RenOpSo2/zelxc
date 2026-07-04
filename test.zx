@@ -9,7 +9,7 @@ config = {host: "localhost"} # object
 # Constant (gak bisa diubah)
 const VERSION = "1.0.0"
 
-# Multi-assig
+# Multi-assign
 x, y = 10, 20
 a, b, c = 1, 2.5, "tiga"
 
@@ -17,3 +17,10 @@ a, b, c = 1, 2.5, "tiga"
 first_tag = tags[0]
 second_tag = tags[1]
 first_arg = args[0]
+
+# Print statements
+print("=== TES BUILT-IN PRINT ===")
+print("Halo, nama saya", nama, "dan umur saya", umur)
+print("Tags:", tags)
+print("Tag pertama:", first_tag)
+print("CLI Arg pertama:", first_arg)

@@ -8,7 +8,9 @@
 - **Recursive Array Runtime:** Upgraded the C runtime (`Value` struct) to support actual dynamic arrays containing nested elements.
 - **Recursive Array Printer:** Refactored C runtime printing to format and print arrays and their elements recursively (e.g. `["cli", "tools"]`).
 - **Array Safety Checks:** Added a runtime safety helper (`get_array_element`) to enforce bounds checking on array reads and prevent segmentation faults.
+- **Built-in `print(...)` function:** Implemented modern, Python-like printing. Supports multiple comma-separated arguments, smart unquoting for direct string output (while retaining quotes for strings nested inside arrays), separated by spaces and ending with a newline.
 - **Variable Evaluation:** Added support for variable references as values in assignments (`y = x`).
+- **Test Infrastructure:** Created `test/valid/` directory containing modular test cases (`01_basic.zx`, `02_array.zx`, `03_multi_assign.zx`, `04_args.zx`), and added a colored shell test runner script `run_tests.sh` along with a conflict-free `Makefile`.
 
 ### Fixed
 - **Multi-assignment Bug:** Fixed a Segmentation Fault (exit code 139) caused by a communication mismatch between the parser and codegen.

@@ -55,18 +55,21 @@ extern int yydebug;
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
     CONST = 258,                   /* CONST  */
-    ASSIGN = 259,                  /* ASSIGN  */
-    COMMA = 260,                   /* COMMA  */
-    COLON = 261,                   /* COLON  */
-    LBRACKET = 262,                /* LBRACKET  */
-    RBRACKET = 263,                /* RBRACKET  */
-    LBRACE = 264,                  /* LBRACE  */
-    RBRACE = 265,                  /* RBRACE  */
-    INT_LIT = 266,                 /* INT_LIT  */
-    BOOL_LIT = 267,                /* BOOL_LIT  */
-    FLOAT_LIT = 268,               /* FLOAT_LIT  */
-    STRING_LIT = 269,              /* STRING_LIT  */
-    IDENTIFIER = 270               /* IDENTIFIER  */
+    PRINT = 259,                   /* PRINT  */
+    LPAREN = 260,                  /* LPAREN  */
+    RPAREN = 261,                  /* RPAREN  */
+    ASSIGN = 262,                  /* ASSIGN  */
+    COMMA = 263,                   /* COMMA  */
+    COLON = 264,                   /* COLON  */
+    LBRACKET = 265,                /* LBRACKET  */
+    RBRACKET = 266,                /* RBRACKET  */
+    LBRACE = 267,                  /* LBRACE  */
+    RBRACE = 268,                  /* RBRACE  */
+    INT_LIT = 269,                 /* INT_LIT  */
+    BOOL_LIT = 270,                /* BOOL_LIT  */
+    FLOAT_LIT = 271,               /* FLOAT_LIT  */
+    STRING_LIT = 272,              /* STRING_LIT  */
+    IDENTIFIER = 273               /* IDENTIFIER  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -86,7 +89,7 @@ union YYSTYPE
     struct StringList* str_list;
     struct ValueList* val_list;
 
-#line 90 "build/parser.tab.h"
+#line 93 "build/parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

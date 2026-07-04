@@ -201,16 +201,20 @@ void codegen_init() {
     fprintf(output_file, "}\n\n");
     
     // Recursive print helper
-    fprintf(output_file, "void print_value_rec(Value v) {\n");
+    fprintf(output_file, "void print_value_rec(Value v, int quoted) {\n");
     fprintf(output_file, "    switch(v.type) {\n");
     fprintf(output_file, "        case TYPE_INT: printf(\"%%d\", v.data.int_val); break;\n");
     fprintf(output_file, "        case TYPE_FLOAT: printf(\"%%f\", v.data.float_val); break;\n");
-    fprintf(output_file, "        case TYPE_STRING: printf(\"\\\"%%s\\\"\", v.data.str_val); break;\n");
+    fprintf(output_file, "        case TYPE_STRING: {\n");
+    fprintf(output_file, "            if (quoted) printf(\"\\\"%%s\\\"\", v.data.str_val);\n");
+    fprintf(output_file, "            else printf(\"%%s\", v.data.str_val);\n");
+    fprintf(output_file, "            break;\n");
+    fprintf(output_file, "        }\n");
     fprintf(output_file, "        case TYPE_BOOL: printf(\"%%s\", v.data.bool_val ? \"true\" : \"false\"); break;\n");
     fprintf(output_file, "        case TYPE_ARRAY: {\n");
     fprintf(output_file, "            printf(\"[\");\n");
     fprintf(output_file, "            for (int i = 0; i < v.data.array_val.length; i++) {\n");
-    fprintf(output_file, "                print_value_rec(v.data.array_val.elements[i]);\n");
+    fprintf(output_file, "                print_value_rec(v.data.array_val.elements[i], 1);\n");
     fprintf(output_file, "                if (i < v.data.array_val.length - 1) printf(\", \");\n");
     fprintf(output_file, "            }\n");
     fprintf(output_file, "            printf(\"]\");\n");
@@ -222,7 +226,7 @@ void codegen_init() {
     
     fprintf(output_file, "void print_value(const char* name, Value v) {\n");
     fprintf(output_file, "    printf(\"%%s = \", name);\n");
-    fprintf(output_file, "    print_value_rec(v);\n");
+    fprintf(output_file, "    print_value_rec(v, 1);\n");
     fprintf(output_file, "    printf(\"\\n\");\n");
     fprintf(output_file, "}\n\n");
     
@@ -349,4 +353,21 @@ void codegen_multi_assign(struct MultiAssignNode* node) {
         codegen_assign_value(node->names[i], node->values[i]);
         fprintf(output_file, "    print_value(\"%s\", %s);\n", node->names[i], node->names[i]);
     }
+}
+
+void codegen_print(struct ValueList* args) {
+    struct ValueList* curr = args;
+    while (curr) {
+        fprintf(output_file, "    {\n");
+        fprintf(output_file, "        Value tmp;\n");
+        fprintf(output_file, "        ");
+        codegen_assign_value("tmp", curr->val);
+        fprintf(output_file, "        print_value_rec(tmp, 0);\n");
+        fprintf(output_file, "    }\n");
+        curr = curr->next;
+        if (curr) {
+            fprintf(output_file, "    printf(\" \");\n");
+        }
+    }
+    fprintf(output_file, "    printf(\"\\n\");\n");
 }

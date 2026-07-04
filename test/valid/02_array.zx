@@ -1,0 +1,9 @@
+# Array literals and indexing
+tags = ["cli", "tools", "compiler"]
+numbers = [1, 2, 3]
+
+print("Tags:", tags)
+print("First tag:", tags[0])
+print("Second tag:", tags[1])
+print("Numbers:", numbers)
+print("Second number:", numbers[1])
