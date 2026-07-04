@@ -1,0 +1,17 @@
+# Zelx Language Changelog
+
+## [Unreleased] - 2026-07-04
+
+### Added
+- **Command Line Arguments Support:** Exposed built-in `args` array variable initialized dynamically with `argc`/`argv` (excluding the binary name).
+- **Array Indexing:** Added parser grammar and runtime support for retrieving array elements by index (`IDENTIFIER[index]`), working for both user-defined arrays and the built-in `args`.
+- **Recursive Array Runtime:** Upgraded the C runtime (`Value` struct) to support actual dynamic arrays containing nested elements.
+- **Recursive Array Printer:** Refactored C runtime printing to format and print arrays and their elements recursively (e.g. `["cli", "tools"]`).
+- **Array Safety Checks:** Added a runtime safety helper (`get_array_element`) to enforce bounds checking on array reads and prevent segmentation faults.
+- **Variable Evaluation:** Added support for variable references as values in assignments (`y = x`).
+
+### Fixed
+- **Multi-assignment Bug:** Fixed a Segmentation Fault (exit code 139) caused by a communication mismatch between the parser and codegen.
+- **Dynamic Multi-assignment:** Upgraded multi-assignment to support any length of variables (2, 3, etc.) recursively and safely.
+- **Type-Aware Multi-assignment:** Multi-assignment now supports mixed dynamic types (`int`, `float`, `string`, `bool`, etc.) using a recursive codegen helper instead of defaulting to integers.
+- **Removed Placeholders:** Deleted the dummy code block placeholder for array initialization and replaced it with full, recursive transpilation.

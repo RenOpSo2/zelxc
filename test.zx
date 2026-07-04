@@ -9,6 +9,11 @@ config = {host: "localhost"} # object
 # Constant (gak bisa diubah)
 const VERSION = "1.0.0"
 
-# Multi-assign
+# Multi-assig
 x, y = 10, 20
 a, b, c = 1, 2.5, "tiga"
+
+# Array indexing & CLI args
+first_tag = tags[0]
+second_tag = tags[1]
+first_arg = args[0]

@@ -36,7 +36,7 @@ void yyerror(const char* s) {
 %type <assign_node> single_assign
 %type <multi_assign> multi_assign
 %type <str_list> identifier_list
-%type <val_list> value_list
+%type <val_list> value_list array array_elements
 
 %start program
 
@@ -99,17 +99,25 @@ value:
     | FLOAT_LIT   { $$ = create_float_value($1); }
     | STRING_LIT  { $$ = create_string_value($1); }
     | BOOL_LIT    { $$ = create_bool_value($1); }
-    | array       { $$ = create_array_placeholder(); }
+    | IDENTIFIER  { $$ = create_identifier_value($1); }
+    | array       { $$ = create_array_value($1); }
     | object      { $$ = create_object_placeholder(); }
+    | IDENTIFIER LBRACKET value RBRACKET { $$ = create_index_access_value($1, $3); }
     ;
 
 array:
-    LBRACKET array_elements RBRACKET
+    LBRACKET array_elements RBRACKET {
+        $$ = $2;
+    }
     ;
 
 array_elements:
-    value
-    | array_elements COMMA value
+    value {
+        $$ = create_value_list($1, NULL);
+    }
+    | array_elements COMMA value {
+        $$ = append_value_list($1, $3);
+    }
     ;
 
 object:
