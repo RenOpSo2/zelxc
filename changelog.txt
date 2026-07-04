@@ -11,6 +11,7 @@
 - **Built-in `print(...)` function:** Implemented modern, Python-like printing. Supports multiple comma-separated arguments, smart unquoting for direct string output (while retaining quotes for strings nested inside arrays), separated by spaces and ending with a newline.
 - **Variable Evaluation:** Added support for variable references as values in assignments (`y = x`).
 - **Test Infrastructure:** Created `test/valid/` directory containing modular test cases (`01_basic.zx`, `02_array.zx`, `03_multi_assign.zx`, `04_args.zx`), and added a colored shell test runner script `run_tests.sh` along with a conflict-free `Makefile`.
+- **Source Line Mapping:** Integrated C preprocessor `#line` directives into the code generation. Tracks original `.zx` line numbers and filenames dynamically (via Flex's `yylineno`), mapping transpiled C code blocks back to their original source lines for seamless debugging in `gdb` and precise compilation warnings/errors.
 
 ### Fixed
 - **Multi-assignment Bug:** Fixed a Segmentation Fault (exit code 139) caused by a communication mismatch between the parser and codegen.

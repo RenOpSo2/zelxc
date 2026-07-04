@@ -19,12 +19,14 @@ struct AssignmentNode {
     char* name;
     struct ValueNode* value;
     int is_const;
+    int line_no;
 };
 
 struct MultiAssignNode {
     char** names;
     struct ValueNode** values;
     int count;
+    int line_no;
 };
 
 struct StringList {
@@ -53,15 +55,15 @@ struct ValueList* append_value_list(struct ValueList* list, struct ValueNode* va
 void free_string_list_nodes(struct StringList* list);
 void free_value_list_nodes(struct ValueList* list);
 
-struct AssignmentNode* create_assign_node(char* name, struct ValueNode* value, int is_const);
-struct MultiAssignNode* create_multi_assign_node(struct StringList* names, struct ValueList* values);
+struct AssignmentNode* create_assign_node(char* name, struct ValueNode* value, int is_const, int line_no);
+struct MultiAssignNode* create_multi_assign_node(struct StringList* names, struct ValueList* values, int line_no);
 
-void codegen_init();
+void codegen_init(const char* filename);
 void codegen_finish();
 void codegen_assign(struct AssignmentNode* node);
 void codegen_const_assign(struct AssignmentNode* node);
 void codegen_multi_assign(struct MultiAssignNode* node);
-void codegen_print(struct ValueList* args);
+void codegen_print(struct ValueList* args, int line_no);
 
 #endif
 

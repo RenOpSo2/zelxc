@@ -8,6 +8,7 @@ extern int yylex();
 extern int yyparse();
 extern FILE* yyin;
 extern char* yytext;
+extern int yylineno;
 
 void yyerror(const char* s) {
     fprintf(stderr, "Error: %s at '%s'\n", s, yytext);
@@ -55,23 +56,23 @@ statement:
     single_assign      { codegen_assign($1); }
     | const_assign     { /* handled in const_assign */ }
     | multi_assign     { codegen_multi_assign($1); }
-    | PRINT LPAREN print_args RPAREN { codegen_print($3); }
+    | PRINT LPAREN print_args RPAREN { codegen_print($3, yylineno); }
     ;
 
 single_assign:
-    IDENTIFIER ASSIGN value    { $$ = create_assign_node($1, $3, 0); }
+    IDENTIFIER ASSIGN value    { $$ = create_assign_node($1, $3, 0, yylineno); }
     ;
 
 const_assign:
     CONST IDENTIFIER ASSIGN value {
-        struct AssignmentNode* node = create_assign_node($2, $4, 1);
+        struct AssignmentNode* node = create_assign_node($2, $4, 1, yylineno);
         codegen_const_assign(node);
     }
     ;
 
 multi_assign:
     identifier_list ASSIGN value_list {
-        $$ = create_multi_assign_node($1, $3);
+        $$ = create_multi_assign_node($1, $3, yylineno);
     }
     ;
 

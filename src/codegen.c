@@ -4,6 +4,7 @@
 #include "codegen.h"
 
 static FILE* output_file;
+static const char* source_filename;
 
 struct ValueNode* create_int_value(int val) {
     struct ValueNode* node = malloc(sizeof(struct ValueNode));
@@ -61,11 +62,12 @@ struct ValueNode* create_object_placeholder() {
     return node;
 }
 
-struct AssignmentNode* create_assign_node(char* name, struct ValueNode* value, int is_const) {
+struct AssignmentNode* create_assign_node(char* name, struct ValueNode* value, int is_const, int line_no) {
     struct AssignmentNode* node = malloc(sizeof(struct AssignmentNode));
     node->name = name;
     node->value = value;
     node->is_const = is_const;
+    node->line_no = line_no;
     return node;
 }
 
@@ -123,7 +125,7 @@ void free_value_list_nodes(struct ValueList* list) {
     }
 }
 
-struct MultiAssignNode* create_multi_assign_node(struct StringList* names, struct ValueList* values) {
+struct MultiAssignNode* create_multi_assign_node(struct StringList* names, struct ValueList* values, int line_no) {
     struct MultiAssignNode* node = malloc(sizeof(struct MultiAssignNode));
     
     // Count names
@@ -154,10 +156,12 @@ struct MultiAssignNode* create_multi_assign_node(struct StringList* names, struc
     free_string_list_nodes(names);
     free_value_list_nodes(values);
     
+    node->line_no = line_no;
     return node;
 }
 
-void codegen_init() {
+void codegen_init(const char* filename) {
+    source_filename = filename;
     output_file = fopen("output.c", "w");
     fprintf(output_file, "#include <stdio.h>\n");
     fprintf(output_file, "#include <stdlib.h>\n");
@@ -317,6 +321,7 @@ static void codegen_assign_value(const char* target, struct ValueNode* val) {
 }
 
 void codegen_assign(struct AssignmentNode* node) {
+    fprintf(output_file, "\n#line %d \"%s\"\n", node->line_no, source_filename);
     fprintf(output_file, "    Value %s;\n", node->name);
     fprintf(output_file, "    ");
     codegen_assign_value(node->name, node->value);
@@ -324,6 +329,7 @@ void codegen_assign(struct AssignmentNode* node) {
 }
 
 void codegen_const_assign(struct AssignmentNode* node) {
+    fprintf(output_file, "\n#line %d \"%s\"\n", node->line_no, source_filename);
     // Langsung inisialisasi untuk const
     fprintf(output_file, "    const Value %s = {.type = ", node->name);
     
@@ -347,6 +353,7 @@ void codegen_const_assign(struct AssignmentNode* node) {
 }
 
 void codegen_multi_assign(struct MultiAssignNode* node) {
+    fprintf(output_file, "\n#line %d \"%s\"\n", node->line_no, source_filename);
     for (int i = 0; i < node->count; i++) {
         fprintf(output_file, "    Value %s;\n", node->names[i]);
         fprintf(output_file, "    ");
@@ -355,7 +362,8 @@ void codegen_multi_assign(struct MultiAssignNode* node) {
     }
 }
 
-void codegen_print(struct ValueList* args) {
+void codegen_print(struct ValueList* args, int line_no) {
+    fprintf(output_file, "\n#line %d \"%s\"\n", line_no, source_filename);
     struct ValueList* curr = args;
     while (curr) {
         fprintf(output_file, "    {\n");

@@ -78,12 +78,13 @@ extern int yylex();
 extern int yyparse();
 extern FILE* yyin;
 extern char* yytext;
+extern int yylineno;
 
 void yyerror(const char* s) {
     fprintf(stderr, "Error: %s at '%s'\n", s, yytext);
 }
 
-#line 87 "build/parser.tab.c"
+#line 88 "build/parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -532,10 +533,10 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    46,    46,    50,    51,    55,    56,    57,    58,    62,
-      66,    73,    79,    83,    89,    93,    99,   102,   108,   109,
-     110,   111,   112,   113,   114,   115,   119,   125,   128,   134,
-     138,   139
+       0,    47,    47,    51,    52,    56,    57,    58,    59,    63,
+      67,    74,    80,    84,    90,    94,   100,   103,   109,   110,
+     111,   112,   113,   114,   115,   116,   120,   126,   129,   135,
+     139,   140
 };
 #endif
 
@@ -1128,176 +1129,176 @@ yyreduce:
   switch (yyn)
     {
   case 5: /* statement: single_assign  */
-#line 55 "src/parser.y"
+#line 56 "src/parser.y"
                        { codegen_assign((yyvsp[0].assign_node)); }
-#line 1134 "build/parser.tab.c"
+#line 1135 "build/parser.tab.c"
     break;
 
   case 6: /* statement: const_assign  */
-#line 56 "src/parser.y"
+#line 57 "src/parser.y"
                        { /* handled in const_assign */ }
-#line 1140 "build/parser.tab.c"
+#line 1141 "build/parser.tab.c"
     break;
 
   case 7: /* statement: multi_assign  */
-#line 57 "src/parser.y"
+#line 58 "src/parser.y"
                        { codegen_multi_assign((yyvsp[0].multi_assign)); }
-#line 1146 "build/parser.tab.c"
+#line 1147 "build/parser.tab.c"
     break;
 
   case 8: /* statement: PRINT LPAREN print_args RPAREN  */
-#line 58 "src/parser.y"
-                                     { codegen_print((yyvsp[-1].val_list)); }
-#line 1152 "build/parser.tab.c"
+#line 59 "src/parser.y"
+                                     { codegen_print((yyvsp[-1].val_list), yylineno); }
+#line 1153 "build/parser.tab.c"
     break;
 
   case 9: /* single_assign: IDENTIFIER ASSIGN value  */
-#line 62 "src/parser.y"
-                               { (yyval.assign_node) = create_assign_node((yyvsp[-2].strval), (yyvsp[0].value_node), 0); }
-#line 1158 "build/parser.tab.c"
+#line 63 "src/parser.y"
+                               { (yyval.assign_node) = create_assign_node((yyvsp[-2].strval), (yyvsp[0].value_node), 0, yylineno); }
+#line 1159 "build/parser.tab.c"
     break;
 
   case 10: /* const_assign: CONST IDENTIFIER ASSIGN value  */
-#line 66 "src/parser.y"
+#line 67 "src/parser.y"
                                   {
-        struct AssignmentNode* node = create_assign_node((yyvsp[-2].strval), (yyvsp[0].value_node), 1);
+        struct AssignmentNode* node = create_assign_node((yyvsp[-2].strval), (yyvsp[0].value_node), 1, yylineno);
         codegen_const_assign(node);
     }
-#line 1167 "build/parser.tab.c"
+#line 1168 "build/parser.tab.c"
     break;
 
   case 11: /* multi_assign: identifier_list ASSIGN value_list  */
-#line 73 "src/parser.y"
+#line 74 "src/parser.y"
                                       {
-        (yyval.multi_assign) = create_multi_assign_node((yyvsp[-2].str_list), (yyvsp[0].val_list));
+        (yyval.multi_assign) = create_multi_assign_node((yyvsp[-2].str_list), (yyvsp[0].val_list), yylineno);
     }
-#line 1175 "build/parser.tab.c"
+#line 1176 "build/parser.tab.c"
     break;
 
   case 12: /* identifier_list: IDENTIFIER COMMA IDENTIFIER  */
-#line 79 "src/parser.y"
+#line 80 "src/parser.y"
                                 {
         (yyval.str_list) = create_string_list((yyvsp[-2].strval), NULL);
         (yyval.str_list) = append_string_list((yyval.str_list), (yyvsp[0].strval));
     }
-#line 1184 "build/parser.tab.c"
+#line 1185 "build/parser.tab.c"
     break;
 
   case 13: /* identifier_list: identifier_list COMMA IDENTIFIER  */
-#line 83 "src/parser.y"
+#line 84 "src/parser.y"
                                        {
         (yyval.str_list) = append_string_list((yyvsp[-2].str_list), (yyvsp[0].strval));
     }
-#line 1192 "build/parser.tab.c"
+#line 1193 "build/parser.tab.c"
     break;
 
   case 14: /* value_list: value COMMA value  */
-#line 89 "src/parser.y"
+#line 90 "src/parser.y"
                       {
         (yyval.val_list) = create_value_list((yyvsp[-2].value_node), NULL);
         (yyval.val_list) = append_value_list((yyval.val_list), (yyvsp[0].value_node));
     }
-#line 1201 "build/parser.tab.c"
+#line 1202 "build/parser.tab.c"
     break;
 
   case 15: /* value_list: value_list COMMA value  */
-#line 93 "src/parser.y"
+#line 94 "src/parser.y"
                              {
         (yyval.val_list) = append_value_list((yyvsp[-2].val_list), (yyvsp[0].value_node));
     }
-#line 1209 "build/parser.tab.c"
+#line 1210 "build/parser.tab.c"
     break;
 
   case 16: /* print_args: value  */
-#line 99 "src/parser.y"
+#line 100 "src/parser.y"
           {
         (yyval.val_list) = create_value_list((yyvsp[0].value_node), NULL);
     }
-#line 1217 "build/parser.tab.c"
+#line 1218 "build/parser.tab.c"
     break;
 
   case 17: /* print_args: print_args COMMA value  */
-#line 102 "src/parser.y"
+#line 103 "src/parser.y"
                              {
         (yyval.val_list) = append_value_list((yyvsp[-2].val_list), (yyvsp[0].value_node));
     }
-#line 1225 "build/parser.tab.c"
+#line 1226 "build/parser.tab.c"
     break;
 
   case 18: /* value: INT_LIT  */
-#line 108 "src/parser.y"
+#line 109 "src/parser.y"
                   { (yyval.value_node) = create_int_value((yyvsp[0].intval)); }
-#line 1231 "build/parser.tab.c"
+#line 1232 "build/parser.tab.c"
     break;
 
   case 19: /* value: FLOAT_LIT  */
-#line 109 "src/parser.y"
+#line 110 "src/parser.y"
                   { (yyval.value_node) = create_float_value((yyvsp[0].floatval)); }
-#line 1237 "build/parser.tab.c"
+#line 1238 "build/parser.tab.c"
     break;
 
   case 20: /* value: STRING_LIT  */
-#line 110 "src/parser.y"
+#line 111 "src/parser.y"
                   { (yyval.value_node) = create_string_value((yyvsp[0].strval)); }
-#line 1243 "build/parser.tab.c"
+#line 1244 "build/parser.tab.c"
     break;
 
   case 21: /* value: BOOL_LIT  */
-#line 111 "src/parser.y"
+#line 112 "src/parser.y"
                   { (yyval.value_node) = create_bool_value((yyvsp[0].intval)); }
-#line 1249 "build/parser.tab.c"
+#line 1250 "build/parser.tab.c"
     break;
 
   case 22: /* value: IDENTIFIER  */
-#line 112 "src/parser.y"
+#line 113 "src/parser.y"
                   { (yyval.value_node) = create_identifier_value((yyvsp[0].strval)); }
-#line 1255 "build/parser.tab.c"
+#line 1256 "build/parser.tab.c"
     break;
 
   case 23: /* value: array  */
-#line 113 "src/parser.y"
+#line 114 "src/parser.y"
                   { (yyval.value_node) = create_array_value((yyvsp[0].val_list)); }
-#line 1261 "build/parser.tab.c"
+#line 1262 "build/parser.tab.c"
     break;
 
   case 24: /* value: object  */
-#line 114 "src/parser.y"
+#line 115 "src/parser.y"
                   { (yyval.value_node) = create_object_placeholder(); }
-#line 1267 "build/parser.tab.c"
+#line 1268 "build/parser.tab.c"
     break;
 
   case 25: /* value: IDENTIFIER LBRACKET value RBRACKET  */
-#line 115 "src/parser.y"
+#line 116 "src/parser.y"
                                          { (yyval.value_node) = create_index_access_value((yyvsp[-3].strval), (yyvsp[-1].value_node)); }
-#line 1273 "build/parser.tab.c"
+#line 1274 "build/parser.tab.c"
     break;
 
   case 26: /* array: LBRACKET array_elements RBRACKET  */
-#line 119 "src/parser.y"
+#line 120 "src/parser.y"
                                      {
         (yyval.val_list) = (yyvsp[-1].val_list);
     }
-#line 1281 "build/parser.tab.c"
+#line 1282 "build/parser.tab.c"
     break;
 
   case 27: /* array_elements: value  */
-#line 125 "src/parser.y"
+#line 126 "src/parser.y"
           {
         (yyval.val_list) = create_value_list((yyvsp[0].value_node), NULL);
     }
-#line 1289 "build/parser.tab.c"
+#line 1290 "build/parser.tab.c"
     break;
 
   case 28: /* array_elements: array_elements COMMA value  */
-#line 128 "src/parser.y"
+#line 129 "src/parser.y"
                                  {
         (yyval.val_list) = append_value_list((yyvsp[-2].val_list), (yyvsp[0].value_node));
     }
-#line 1297 "build/parser.tab.c"
+#line 1298 "build/parser.tab.c"
     break;
 
 
-#line 1301 "build/parser.tab.c"
+#line 1302 "build/parser.tab.c"
 
       default: break;
     }
@@ -1490,5 +1491,5 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 142 "src/parser.y"
+#line 143 "src/parser.y"
 

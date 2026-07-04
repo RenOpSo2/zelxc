@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
         return 1;
     }
     
-    codegen_init();
+    codegen_init(argv[1]);
     yyparse();
     codegen_finish();
     
