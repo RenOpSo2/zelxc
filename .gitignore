@@ -1,8 +1,8 @@
 # Zelx
-argpase
-run_argpase
-build_bin
-zelx
+*.argpase
+*.run_argpase
+*.build_bin
+*.zelx
 
 # Prerequisites
 *.d
