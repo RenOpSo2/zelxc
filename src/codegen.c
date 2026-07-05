@@ -604,6 +604,13 @@ void codegen_print(struct ValueList* args, int line_no) {
     fprintf(output_file, "    printf(\"\\n\");\n");
 }
 
+void codegen_expression_statement(struct ValueNode* val, int line_no) {
+    fprintf(output_file, "\n#line %d \"%s\"\n", line_no, source_filename);
+    fprintf(output_file, "    ");
+    codegen_print_expr(val);
+    fprintf(output_file, ";\n");
+}
+
 void codegen_if_start(struct ValueNode* condition, int line_no) {
     fprintf(output_file, "\n#line %d \"%s\"\n", line_no, source_filename);
     fprintf(output_file, "    if (is_truthy(");

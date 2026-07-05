@@ -1,0 +1,73 @@
+# Dynamic Zelx Build Automation Script
+
+command = "build"
+if len(args) > 0 {
+    command = args[0]
+}
+
+if command == "clean" {
+    print("🧹 Cleaning build directory...")
+    exec("rm -f zelx build/*.c build/*.h build/*.o output.c test_bin")
+    print("✨ Clean complete!")
+} else if command == "build" {
+    print("🚀 Building Zelx Compiler...")
+    
+    # Ensure build directory exists
+    exec("mkdir -p build")
+    
+    print("📦 Running Bison on src/parser.y...")
+    status = exec("bison -d -o build/parser.tab.c src/parser.y")
+    
+    if status == 0 {
+        print("📦 Running Flex on src/lex.l...")
+        status = exec("flex -o build/lex.yy.c src/lex.l")
+        
+        if status == 0 {
+            print("⚙️ Compiling lexer...")
+            status = exec("gcc -Wall -Wextra -g -Ibuild -Isrc -c build/lex.yy.c -o build/lex.yy.o")
+            
+            if status == 0 {
+                print("⚙️ Compiling parser...")
+                status = exec("gcc -Wall -Wextra -g -Ibuild -Isrc -c build/parser.tab.c -o build/parser.tab.o")
+                
+                if status == 0 {
+                    print("⚙️ Compiling codegen...")
+                    status = exec("gcc -Wall -Wextra -g -Ibuild -Isrc -c src/codegen.c -o build/codegen.o")
+                    
+                    if status == 0 {
+                        print("⚙️ Compiling main...")
+                        status = exec("gcc -Wall -Wextra -g -Ibuild -Isrc -c src/main.c -o build/main.o")
+                        
+                        if status == 0 {
+                            print("🔗 Linking objects...")
+                            status = exec("gcc -Wall -Wextra -g -o zelx build/lex.yy.o build/parser.tab.o build/codegen.o build/main.o -lfl")
+                            
+                            if status == 0 {
+                                print("🎉 Zelx built successfully!")
+                            } else {
+                                print("❌ Linking failed!")
+                            }
+                        } else {
+                            print("❌ Compiling main.c failed!")
+                        }
+                    } else {
+                        print("❌ Compiling codegen.c failed!")
+                    }
+                } else {
+                    print("❌ Compiling parser failed!")
+                }
+            } else {
+                print("❌ Compiling lexer failed!")
+            }
+        } else {
+            print("❌ Flex failed!")
+        }
+    } else {
+        print("❌ Bison failed!")
+    }
+} else if command == "test" {
+    print("🧪 Running Zelx test suite...")
+    exec("./run_tests.sh")
+} else {
+    print("Usage: zelx build.zx [build | clean | test]")
+}

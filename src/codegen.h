@@ -70,6 +70,7 @@ void codegen_assign(struct AssignmentNode* node);
 void codegen_const_assign(struct AssignmentNode* node);
 void codegen_multi_assign(struct MultiAssignNode* node);
 void codegen_print(struct ValueList* args, int line_no);
+void codegen_expression_statement(struct ValueNode* val, int line_no);
 void codegen_if_start(struct ValueNode* condition, int line_no);
 void codegen_else_if_start(struct ValueNode* condition, int line_no);
 void codegen_else_start();

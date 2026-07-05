@@ -15,6 +15,8 @@ void yyerror(const char* s) {
 }
 %}
 
+%expect 2
+
 %union {
     int intval;
     double floatval;
@@ -65,6 +67,7 @@ statement:
     | multi_assign     { codegen_multi_assign($1); }
     | PRINT LPAREN print_args RPAREN { codegen_print($3, yylineno); }
     | if_statement
+    | value            { codegen_expression_statement($1, yylineno); }
     ;
 
 if_statement:
