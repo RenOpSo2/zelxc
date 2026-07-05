@@ -1,0 +1,9 @@
+# Test for must() built-in assertion function
+print("Testing must() with exec success...")
+# `true` shell command always exits with 0
+must(exec("true"))
+
+print("Testing must() with boolean true...")
+must(true)
+
+print("must() assertions passed successfully!")

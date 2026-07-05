@@ -92,6 +92,21 @@ struct ValueNode* create_must_node(struct ValueNode* expr) {
     return node;
 }
 
+struct ValueNode* create_has_flag_node(struct ValueNode* flag_expr) {
+    struct ValueNode* node = malloc(sizeof(struct ValueNode));
+    node->type = 12;
+    node->index_expr = flag_expr;
+    return node;
+}
+
+struct ValueNode* create_get_flag_node(struct ValueNode* flag_expr, struct ValueNode* default_expr) {
+    struct ValueNode* node = malloc(sizeof(struct ValueNode));
+    node->type = 13;
+    node->left = flag_expr;
+    node->right = default_expr;
+    return node;
+}
+
 struct AssignmentNode* create_assign_node(char* name, struct ValueNode* value, int is_const, int line_no) {
     struct AssignmentNode* node = malloc(sizeof(struct AssignmentNode));
     node->name = name;
@@ -422,9 +437,37 @@ void codegen_init(const char* filename) {
     fprintf(output_file, "    printf(\"\\n\");\n");
     fprintf(output_file, "}\n\n");
     
+    fprintf(output_file, "Value args;\n\n");
+
+    // Flag parsing helpers
+    fprintf(output_file, "Value eval_has_flag(Value flag) {\n");
+    fprintf(output_file, "    Value res;\n");
+    fprintf(output_file, "    res.type = TYPE_BOOL;\n");
+    fprintf(output_file, "    res.data.bool_val = 0;\n");
+    fprintf(output_file, "    if (flag.type != TYPE_STRING) return res;\n");
+    fprintf(output_file, "    for (int i = 0; i < args.data.array_val.length; i++) {\n");
+    fprintf(output_file, "        if (args.data.array_val.elements[i].type == TYPE_STRING &&\n");
+    fprintf(output_file, "            strcmp(args.data.array_val.elements[i].data.str_val, flag.data.str_val) == 0) {\n");
+    fprintf(output_file, "            res.data.bool_val = 1;\n");
+    fprintf(output_file, "            break;\n");
+    fprintf(output_file, "        }\n");
+    fprintf(output_file, "    }\n");
+    fprintf(output_file, "    return res;\n");
+    fprintf(output_file, "}\n\n");
+    
+    fprintf(output_file, "Value eval_get_flag(Value flag, Value default_val) {\n");
+    fprintf(output_file, "    if (flag.type != TYPE_STRING) return default_val;\n");
+    fprintf(output_file, "    for (int i = 0; i < args.data.array_val.length - 1; i++) {\n");
+    fprintf(output_file, "        if (args.data.array_val.elements[i].type == TYPE_STRING &&\n");
+    fprintf(output_file, "            strcmp(args.data.array_val.elements[i].data.str_val, flag.data.str_val) == 0) {\n");
+    fprintf(output_file, "            return args.data.array_val.elements[i+1];\n");
+    fprintf(output_file, "        }\n");
+    fprintf(output_file, "    }\n");
+    fprintf(output_file, "    return default_val;\n");
+    fprintf(output_file, "}\n\n");
+
     // Main function with args initialization
     fprintf(output_file, "int main(int argc, char** argv) {\n");
-    fprintf(output_file, "    Value args;\n");
     fprintf(output_file, "    args.type = TYPE_ARRAY;\n");
     fprintf(output_file, "    args.data.array_val.length = argc - 1;\n");
     fprintf(output_file, "    if (argc > 1) {\n");
@@ -500,6 +543,18 @@ static void codegen_print_expr(struct ValueNode* val) {
             codegen_print_expr(val->index_expr);
             fprintf(output_file, ")");
             break;
+        case 12:
+            fprintf(output_file, "eval_has_flag(");
+            codegen_print_expr(val->index_expr);
+            fprintf(output_file, ")");
+            break;
+        case 13:
+            fprintf(output_file, "eval_get_flag(");
+            codegen_print_expr(val->left);
+            fprintf(output_file, ", ");
+            codegen_print_expr(val->right);
+            fprintf(output_file, ")");
+            break;
     }
 }
 
@@ -561,6 +616,9 @@ static void codegen_assign_value(const char* target, struct ValueNode* val) {
         case 8: // BINARY_OP
         case 9: // EXEC
         case 10: // LEN
+        case 11: // MUST
+        case 12: // HAS_FLAG
+        case 13: // GET_FLAG
             fprintf(output_file, "%s = ", target);
             codegen_print_expr(val);
             fprintf(output_file, ";\n");

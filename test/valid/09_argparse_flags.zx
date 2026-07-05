@@ -1,0 +1,14 @@
+# Test for built-in has_flag and get_flag
+
+print("Testing has_flag...")
+# Di dalam run_tests.sh, test 09_argparse_flags.zx ini akan dijalankan tanpa flag tambahan awalnya,
+# sehingga has_flag("--help") seharusnya mengembalikan false.
+help_requested = has_flag("--help")
+print("Help requested:", help_requested)
+
+print("Testing get_flag...")
+# get_flag("--output", "default.out") seharusnya mengembalikan "default.out" karena "--output" tidak diberikan.
+output_file = get_flag("--output", "default.out")
+print("Output file:", output_file)
+
+print("CLI argument parsing passed successfully!")

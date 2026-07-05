@@ -1,81 +1,35 @@
 # ==========================================
-# argparse.zx - CLI Argument Parser Mini
-# Usage: zelx argparse.zx [command] [options]
+# argpase.zx - CLI Argument Parser Mini
+# Usage: zelx argpase.zx [command] [options]
 # ==========================================
 
 const APP_NAME = "zelx"
 const VERSION = "0.1.0"
-const HELP_TEXT = "Usage: zelx <command> [options]"
+const HELP_TEXT = "Usage: zelx <command> [options]\nOptions:\n  -h, --help     Show help\n  -v, --version  Show version\n  -n, --name     Set name\n  -o, --output   Set output file"
 
+# Ambil command (posisi pertama)
 command = args[0]
-opt1 = args[1]
-opt2 = args[2]
-opt3 = args[3]
 
-# --- Flag definitions ---
-flags_short = ["-h", "-v", "-n", "-o", "-m"]
-flags_long = ["--help", "--version", "--name", "--output", "--mode"]
-flags_desc = ["Show help", "Show version", "Set name", "Set output file", "Set mode"]
+# --- Parser dengan fungsi built-in baru ---
+show_help = has_flag("--help") or has_flag("-h")
+show_version = has_flag("--version") or has_flag("-v")
 
-# --- Command definitions ---
-cmds_list = ["build", "run", "init", "test"]
-cmds_desc = ["Build project", "Run project", "Init new project", "Run tests"]
-
-# --- Parser ---
-show_help = command
-show_version = command
-name_value = opt1
-output_value = opt2
-mode_value = opt3
+# Ambil value dari flag, kalau gak ada fallback ke string kosong / default
+name_value = get_flag("--name", "unknown")
+output_value = get_flag("--output", "default.out")
 
 # Print banner
 print("===", APP_NAME, "v", VERSION, "===")
 print("Command:", command)
 
-# --- Flag detection ---
-is_help = command
-is_version = command
-is_build = command
-is_run = command
-is_init = command
-is_test = command
-
-print("")
-print("--- Parsed ---")
-
-# Detect help
-print("Help mode:", is_help)
-print("Version request:", is_version)
-
-# Detect command
-print("Build command:", is_build)
-print("Run command:", is_run)
-print("Init command:", is_init)
-print("Test command:", is_test)
-
-# Options
+print("\n--- Parsed ---")
+print("Help mode:", show_help)
+print("Version request:", show_version)
 print("Name:", name_value)
 print("Output:", output_value)
-print("Mode:", mode_value)
 
-print("")
-print("--- Command matched ---")
-matched_cmd = cmds_list[0]
-matched_desc = cmds_desc[0]
-print(matched_cmd, "->", matched_desc)
+if show_help {
+    print("\n--- Help Menu ---")
+    print(HELP_TEXT)
+}
 
-print("")
-print("--- Available flags ---")
-print(flags_short[0], flags_long[0], ":", flags_desc[0])
-print(flags_short[1], flags_long[1], ":", flags_desc[1])
-print(flags_short[2], flags_long[2], ":", flags_desc[2])
-print(flags_short[3], flags_long[3], ":", flags_desc[3])
-print(flags_short[4], flags_long[4], ":", flags_desc[4])
-
-print("")
-print("--- Available commands ---")
-print(cmds_list[0], ":", cmds_desc[0])
-print(cmds_list[1], ":", cmds_desc[1])
-print(cmds_list[2], ":", cmds_desc[2])
-
-print(cmds_list[3], ":", cmds_desc[3])

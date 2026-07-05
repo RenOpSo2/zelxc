@@ -21,6 +21,8 @@
 "not"                 { return NOT; }
 "len"                 { return LEN; }
 "must"                { return MUST; }
+"has_flag"            { return HAS_FLAG; }
+"get_flag"            { return GET_FLAG; }
 "true"                { yylval.intval = 1; return BOOL_LIT; }
 "false"               { yylval.intval = 0; return BOOL_LIT; }
 

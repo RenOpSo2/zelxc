@@ -3,6 +3,7 @@
 ## [Unreleased] - 2026-07-05
 
 ### Added
+- **Built-in CLI Flag Parsing (`has_flag`, `get_flag`):** Added native semantic CLI argument parsing to replace primitive index-based lookups (`args[N]`). `has_flag("--flag")` checks for the presence of a boolean flag, and `get_flag("--flag", "default")` extracts the value succeeding a flag or returns a fallback default.
 - **Built-in Error Assertion (`must`):** Added the `must(expr)` built-in function to safely evaluate expressions. If the expression yields a non-zero integer (like an `exec()` failure) or a `false` boolean, it prints an error and halts execution with exit code 1. This prevents the "Arrow Anti-Pattern" (deeply nested `if` statements).
 - **Build System Refactor (`build.zx`):** Refactored the main `build.zx` script to use the new `must()` wrapper, converting deeply nested error-handling blocks into a clean, flat, and declarative build pipeline.
 - **Conditional Control Flow (`if`, `else if`, `else`):** Added support for conditional branching blocks using curly braces `{}`. Supports nested and flat `else if` chains.
