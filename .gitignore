@@ -1,7 +1,7 @@
 # Zelx
-argpase
-argpase.zx
-run_argpase
+argparse
+argparse.zx
+run_argparse
 build_bin
 zelx
 build/	

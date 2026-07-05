@@ -1,0 +1,35 @@
+# ==========================================
+# argpase.zx - CLI Argument Parser Mini
+# Usage: zelx argpase.zx [command] [options]
+# ==========================================
+
+const APP_NAME = "zelx"
+const VERSION = "0.1.0"
+const HELP_TEXT = "Usage: zelx <command> [options]\nOptions:\n  -h, --help     Show help\n  -v, --version  Show version\n  -n, --name     Set name\n  -o, --output   Set output file"
+
+# Ambil command (posisi pertama)
+command = args[0]
+
+# --- Parser dengan fungsi built-in baru ---
+show_help = has_flag("--help") or has_flag("-h")
+show_version = has_flag("--version") or has_flag("-v")
+
+# Ambil value dari flag, kalau gak ada fallback ke string kosong / default
+name_value = get_flag("--name", "unknown")
+output_value = get_flag("--output", "default.out")
+
+# Print banner
+print("===", APP_NAME, "v", VERSION, "===")
+print("Command:", command)
+
+print("\n--- Parsed ---")
+print("Help mode:", show_help)
+print("Version request:", show_version)
+print("Name:", name_value)
+print("Output:", output_value)
+
+if show_help {
+    print("\n--- Help Menu ---")
+    print(HELP_TEXT)
+}
+
