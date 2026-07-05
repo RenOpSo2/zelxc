@@ -16,6 +16,10 @@
 "if"                  { return IF; }
 "else"                { return ELSE; }
 "exec"                { return EXEC; }
+"and"                 { return AND; }
+"or"                  { return OR; }
+"not"                 { return NOT; }
+"len"                 { return LEN; }
 "true"                { yylval.intval = 1; return BOOL_LIT; }
 "false"               { yylval.intval = 0; return BOOL_LIT; }
 

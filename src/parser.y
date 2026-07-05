@@ -29,7 +29,7 @@ void yyerror(const char* s) {
 %token CONST PRINT LPAREN RPAREN
 %token ASSIGN COMMA COLON
 %token LBRACKET RBRACKET LBRACE RBRACE
-%token EQ NE LE GE LT GT IF ELSE PLUS EXEC
+%token EQ NE LE GE LT GT IF ELSE PLUS EXEC AND OR NOT LEN
 %token <intval> INT_LIT BOOL_LIT
 %token <floatval> FLOAT_LIT
 %token <strval> STRING_LIT IDENTIFIER
@@ -40,8 +40,11 @@ void yyerror(const char* s) {
 %type <str_list> identifier_list
 %type <val_list> value_list array array_elements print_args
 
+%left OR
+%left AND
 %left EQ NE LT GT LE GE
 %left PLUS
+%right NOT
 
 %start program
 
@@ -164,7 +167,11 @@ value:
     | value LE value { $$ = create_binary_op_node(4, $1, $3); }
     | value GE value { $$ = create_binary_op_node(5, $1, $3); }
     | value PLUS value { $$ = create_binary_op_node(6, $1, $3); }
+    | value AND value { $$ = create_binary_op_node(7, $1, $3); }
+    | value OR value { $$ = create_binary_op_node(8, $1, $3); }
+    | NOT value { $$ = create_binary_op_node(9, $2, NULL); }
     | EXEC LPAREN value RPAREN { $$ = create_exec_node($3); }
+    | LEN LPAREN value RPAREN { $$ = create_len_node($3); }
     | LPAREN value RPAREN { $$ = $2; }
     ;
 

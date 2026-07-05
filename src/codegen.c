@@ -78,6 +78,13 @@ struct ValueNode* create_exec_node(struct ValueNode* cmd_expr) {
     return node;
 }
 
+struct ValueNode* create_len_node(struct ValueNode* expr) {
+    struct ValueNode* node = malloc(sizeof(struct ValueNode));
+    node->type = 10;
+    node->index_expr = expr;
+    return node;
+}
+
 struct AssignmentNode* create_assign_node(char* name, struct ValueNode* value, int is_const, int line_no) {
     struct AssignmentNode* node = malloc(sizeof(struct AssignmentNode));
     node->name = name;
@@ -280,6 +287,22 @@ void codegen_init(const char* filename) {
     fprintf(output_file, "    return res;\n");
     fprintf(output_file, "}\n\n");
     
+    // Len helper
+    fprintf(output_file, "Value eval_len(Value v) {\n");
+    fprintf(output_file, "    Value res;\n");
+    fprintf(output_file, "    res.type = TYPE_INT;\n");
+    fprintf(output_file, "    res.data.int_val = 0;\n");
+    fprintf(output_file, "    if (v.type == TYPE_ARRAY) {\n");
+    fprintf(output_file, "        res.data.int_val = v.data.array_val.length;\n");
+    fprintf(output_file, "    } else if (v.type == TYPE_STRING) {\n");
+    fprintf(output_file, "        res.data.int_val = v.data.str_val ? strlen(v.data.str_val) : 0;\n");
+    fprintf(output_file, "    } else {\n");
+    fprintf(output_file, "        fprintf(stderr, \"Runtime Error: len() argument must be an array or string\\n\");\n");
+    fprintf(output_file, "        exit(1);\n");
+    fprintf(output_file, "    }\n");
+    fprintf(output_file, "    return res;\n");
+    fprintf(output_file, "}\n\n");
+
     // Comparison helper
     fprintf(output_file, "Value eval_binary_op(Value left, int op, Value right) {\n");
     fprintf(output_file, "    Value res;\n");
@@ -337,6 +360,15 @@ void codegen_init(const char* filename) {
     fprintf(output_file, "            break;\n");
     fprintf(output_file, "        case 6: // ADD\n");
     fprintf(output_file, "            return eval_add(left, right);\n");
+    fprintf(output_file, "        case 7: // AND\n");
+    fprintf(output_file, "            res.data.bool_val = (is_truthy(left) && is_truthy(right));\n");
+    fprintf(output_file, "            break;\n");
+    fprintf(output_file, "        case 8: // OR\n");
+    fprintf(output_file, "            res.data.bool_val = (is_truthy(left) || is_truthy(right));\n");
+    fprintf(output_file, "            break;\n");
+    fprintf(output_file, "        case 9: // NOT\n");
+    fprintf(output_file, "            res.data.bool_val = !is_truthy(left);\n");
+    fprintf(output_file, "            break;\n");
     fprintf(output_file, "    }\n");
     fprintf(output_file, "    return res;\n");
     fprintf(output_file, "}\n\n");
@@ -422,14 +454,25 @@ static void codegen_print_expr(struct ValueNode* val) {
             fprintf(output_file, "%s", val->str_val);
             break;
         case 8: // BINARY_OP
-            fprintf(output_file, "eval_binary_op(");
-            codegen_print_expr(val->left);
-            fprintf(output_file, ", %d, ", val->op);
-            codegen_print_expr(val->right);
-            fprintf(output_file, ")");
+            if (val->op == 9) {
+                fprintf(output_file, "eval_binary_op(");
+                codegen_print_expr(val->left);
+                fprintf(output_file, ", 9, (Value){0})");
+            } else {
+                fprintf(output_file, "eval_binary_op(");
+                codegen_print_expr(val->left);
+                fprintf(output_file, ", %d, ", val->op);
+                codegen_print_expr(val->right);
+                fprintf(output_file, ")");
+            }
             break;
         case 9: // EXEC
             fprintf(output_file, "run_exec(");
+            codegen_print_expr(val->index_expr);
+            fprintf(output_file, ")");
+            break;
+        case 10: // LEN
+            fprintf(output_file, "eval_len(");
             codegen_print_expr(val->index_expr);
             fprintf(output_file, ")");
             break;
@@ -493,6 +536,7 @@ static void codegen_assign_value(const char* target, struct ValueNode* val) {
             break;
         case 8: // BINARY_OP
         case 9: // EXEC
+        case 10: // LEN
             fprintf(output_file, "%s = ", target);
             codegen_print_expr(val);
             fprintf(output_file, ";\n");
