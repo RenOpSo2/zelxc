@@ -20,6 +20,7 @@
 "or"                  { return OR; }
 "not"                 { return NOT; }
 "len"                 { return LEN; }
+"must"                { return MUST; }
 "true"                { yylval.intval = 1; return BOOL_LIT; }
 "false"               { yylval.intval = 0; return BOOL_LIT; }
 

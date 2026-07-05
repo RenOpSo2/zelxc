@@ -3,6 +3,8 @@
 ## [Unreleased] - 2026-07-05
 
 ### Added
+- **Built-in Error Assertion (`must`):** Added the `must(expr)` built-in function to safely evaluate expressions. If the expression yields a non-zero integer (like an `exec()` failure) or a `false` boolean, it prints an error and halts execution with exit code 1. This prevents the "Arrow Anti-Pattern" (deeply nested `if` statements).
+- **Build System Refactor (`build.zx`):** Refactored the main `build.zx` script to use the new `must()` wrapper, converting deeply nested error-handling blocks into a clean, flat, and declarative build pipeline.
 - **Conditional Control Flow (`if`, `else if`, `else`):** Added support for conditional branching blocks using curly braces `{}`. Supports nested and flat `else if` chains.
 - **Comparison Operators:** Added support for equality (`==`), inequality (`!=`), less than (`<`), greater than (`>`), less than or equal (`<=`), and greater than or equal (`>=`) operations.
 - **Parentheses Grouping:** Added expression grouping support `(value)` to allow overriding operator precedence.

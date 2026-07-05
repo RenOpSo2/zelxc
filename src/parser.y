@@ -31,7 +31,7 @@ void yyerror(const char* s) {
 %token CONST PRINT LPAREN RPAREN
 %token ASSIGN COMMA COLON
 %token LBRACKET RBRACKET LBRACE RBRACE
-%token EQ NE LE GE LT GT IF ELSE PLUS EXEC AND OR NOT LEN
+%token EQ NE LE GE LT GT IF ELSE PLUS EXEC AND OR NOT LEN MUST
 %token <intval> INT_LIT BOOL_LIT
 %token <floatval> FLOAT_LIT
 %token <strval> STRING_LIT IDENTIFIER
@@ -175,6 +175,7 @@ value:
     | NOT value { $$ = create_binary_op_node(9, $2, NULL); }
     | EXEC LPAREN value RPAREN { $$ = create_exec_node($3); }
     | LEN LPAREN value RPAREN { $$ = create_len_node($3); }
+    | MUST LPAREN value RPAREN { $$ = create_must_node($3); }
     | LPAREN value RPAREN { $$ = $2; }
     ;
 

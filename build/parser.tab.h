@@ -79,11 +79,12 @@ extern int yydebug;
     OR = 280,                      /* OR  */
     NOT = 281,                     /* NOT  */
     LEN = 282,                     /* LEN  */
-    INT_LIT = 283,                 /* INT_LIT  */
-    BOOL_LIT = 284,                /* BOOL_LIT  */
-    FLOAT_LIT = 285,               /* FLOAT_LIT  */
-    STRING_LIT = 286,              /* STRING_LIT  */
-    IDENTIFIER = 287               /* IDENTIFIER  */
+    MUST = 283,                    /* MUST  */
+    INT_LIT = 284,                 /* INT_LIT  */
+    BOOL_LIT = 285,                /* BOOL_LIT  */
+    FLOAT_LIT = 286,               /* FLOAT_LIT  */
+    STRING_LIT = 287,              /* STRING_LIT  */
+    IDENTIFIER = 288               /* IDENTIFIER  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -103,7 +104,7 @@ union YYSTYPE
     struct StringList* str_list;
     struct ValueList* val_list;
 
-#line 107 "build/parser.tab.h"
+#line 108 "build/parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

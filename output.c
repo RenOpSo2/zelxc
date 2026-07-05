@@ -111,6 +111,17 @@ Value eval_len(Value v) {
     return res;
 }
 
+Value run_must(Value v) {
+    if (v.type == TYPE_INT && v.data.int_val != 0) {
+        fprintf(stderr, "Runtime Error: must() assertion failed with exit code %d\n", v.data.int_val);
+        exit(1);
+    } else if (v.type == TYPE_BOOL && v.data.bool_val == 0) {
+        fprintf(stderr, "Runtime Error: must() assertion failed (false)\n");
+        exit(1);
+    }
+    return v;
+}
+
 Value eval_binary_op(Value left, int op, Value right) {
     Value res;
     res.type = TYPE_BOOL;
@@ -288,14 +299,9 @@ tmp.data.str_val = "📦 Running Bison on src/parser.y...";
     printf("\n");
 
 #line 21 "build.zx"
-    Value status;
-    status = run_exec((Value){.type = TYPE_STRING, .data.str_val = "bison -d -o build/parser.tab.c src/parser.y"});
-    print_value("status", status);
+    run_must(run_exec((Value){.type = TYPE_STRING, .data.str_val = "bison -d -o build/parser.tab.c src/parser.y"}));
 
 #line 21 "build.zx"
-    if (is_truthy(eval_binary_op(status, 0, (Value){.type = TYPE_INT, .data.int_val = 0}))) {
-
-#line 22 "build.zx"
     {
         Value tmp;
         tmp.type = TYPE_STRING;
@@ -304,15 +310,10 @@ tmp.data.str_val = "📦 Running Flex on src/lex.l...";
     }
     printf("\n");
 
-#line 25 "build.zx"
-    Value status;
-    status = run_exec((Value){.type = TYPE_STRING, .data.str_val = "flex -o build/lex.yy.c src/lex.l"});
-    print_value("status", status);
+#line 24 "build.zx"
+    run_must(run_exec((Value){.type = TYPE_STRING, .data.str_val = "flex -o build/lex.yy.c src/lex.l"}));
 
-#line 25 "build.zx"
-    if (is_truthy(eval_binary_op(status, 0, (Value){.type = TYPE_INT, .data.int_val = 0}))) {
-
-#line 26 "build.zx"
+#line 24 "build.zx"
     {
         Value tmp;
         tmp.type = TYPE_STRING;
@@ -321,15 +322,10 @@ tmp.data.str_val = "⚙️ Compiling lexer...";
     }
     printf("\n");
 
-#line 29 "build.zx"
-    Value status;
-    status = run_exec((Value){.type = TYPE_STRING, .data.str_val = "gcc -Wall -Wextra -g -Ibuild -Isrc -c build/lex.yy.c -o build/lex.yy.o"});
-    print_value("status", status);
+#line 27 "build.zx"
+    run_must(run_exec((Value){.type = TYPE_STRING, .data.str_val = "gcc -Wall -Wextra -g -Ibuild -Isrc -c build/lex.yy.c -o build/lex.yy.o"}));
 
-#line 29 "build.zx"
-    if (is_truthy(eval_binary_op(status, 0, (Value){.type = TYPE_INT, .data.int_val = 0}))) {
-
-#line 30 "build.zx"
+#line 27 "build.zx"
     {
         Value tmp;
         tmp.type = TYPE_STRING;
@@ -338,15 +334,10 @@ tmp.data.str_val = "⚙️ Compiling parser...";
     }
     printf("\n");
 
-#line 33 "build.zx"
-    Value status;
-    status = run_exec((Value){.type = TYPE_STRING, .data.str_val = "gcc -Wall -Wextra -g -Ibuild -Isrc -c build/parser.tab.c -o build/parser.tab.o"});
-    print_value("status", status);
+#line 30 "build.zx"
+    run_must(run_exec((Value){.type = TYPE_STRING, .data.str_val = "gcc -Wall -Wextra -g -Ibuild -Isrc -c build/parser.tab.c -o build/parser.tab.o"}));
 
-#line 33 "build.zx"
-    if (is_truthy(eval_binary_op(status, 0, (Value){.type = TYPE_INT, .data.int_val = 0}))) {
-
-#line 34 "build.zx"
+#line 30 "build.zx"
     {
         Value tmp;
         tmp.type = TYPE_STRING;
@@ -355,15 +346,10 @@ tmp.data.str_val = "⚙️ Compiling codegen...";
     }
     printf("\n");
 
-#line 37 "build.zx"
-    Value status;
-    status = run_exec((Value){.type = TYPE_STRING, .data.str_val = "gcc -Wall -Wextra -g -Ibuild -Isrc -c src/codegen.c -o build/codegen.o"});
-    print_value("status", status);
+#line 33 "build.zx"
+    run_must(run_exec((Value){.type = TYPE_STRING, .data.str_val = "gcc -Wall -Wextra -g -Ibuild -Isrc -c src/codegen.c -o build/codegen.o"}));
 
-#line 37 "build.zx"
-    if (is_truthy(eval_binary_op(status, 0, (Value){.type = TYPE_INT, .data.int_val = 0}))) {
-
-#line 38 "build.zx"
+#line 33 "build.zx"
     {
         Value tmp;
         tmp.type = TYPE_STRING;
@@ -372,15 +358,10 @@ tmp.data.str_val = "⚙️ Compiling main...";
     }
     printf("\n");
 
-#line 41 "build.zx"
-    Value status;
-    status = run_exec((Value){.type = TYPE_STRING, .data.str_val = "gcc -Wall -Wextra -g -Ibuild -Isrc -c src/main.c -o build/main.o"});
-    print_value("status", status);
+#line 36 "build.zx"
+    run_must(run_exec((Value){.type = TYPE_STRING, .data.str_val = "gcc -Wall -Wextra -g -Ibuild -Isrc -c src/main.c -o build/main.o"}));
 
-#line 41 "build.zx"
-    if (is_truthy(eval_binary_op(status, 0, (Value){.type = TYPE_INT, .data.int_val = 0}))) {
-
-#line 42 "build.zx"
+#line 36 "build.zx"
     {
         Value tmp;
         tmp.type = TYPE_STRING;
@@ -389,15 +370,10 @@ tmp.data.str_val = "🔗 Linking objects...";
     }
     printf("\n");
 
-#line 45 "build.zx"
-    Value status;
-    status = run_exec((Value){.type = TYPE_STRING, .data.str_val = "gcc -Wall -Wextra -g -o zelx build/lex.yy.o build/parser.tab.o build/codegen.o build/main.o -lfl"});
-    print_value("status", status);
+#line 39 "build.zx"
+    run_must(run_exec((Value){.type = TYPE_STRING, .data.str_val = "gcc -Wall -Wextra -g -o zelx build/lex.yy.o build/parser.tab.o build/codegen.o build/main.o -lfl"}));
 
-#line 45 "build.zx"
-    if (is_truthy(eval_binary_op(status, 0, (Value){.type = TYPE_INT, .data.int_val = 0}))) {
-
-#line 46 "build.zx"
+#line 39 "build.zx"
     {
         Value tmp;
         tmp.type = TYPE_STRING;
@@ -405,88 +381,11 @@ tmp.data.str_val = "🎉 Zelx built successfully!";
         print_value_rec(tmp, 0);
     }
     printf("\n");
-    } else {
 
-#line 48 "build.zx"
-    {
-        Value tmp;
-        tmp.type = TYPE_STRING;
-tmp.data.str_val = "❌ Linking failed!";
-        print_value_rec(tmp, 0);
-    }
-    printf("\n");
-    }
-    } else {
-
-#line 51 "build.zx"
-    {
-        Value tmp;
-        tmp.type = TYPE_STRING;
-tmp.data.str_val = "❌ Compiling main.c failed!";
-        print_value_rec(tmp, 0);
-    }
-    printf("\n");
-    }
-    } else {
-
-#line 54 "build.zx"
-    {
-        Value tmp;
-        tmp.type = TYPE_STRING;
-tmp.data.str_val = "❌ Compiling codegen.c failed!";
-        print_value_rec(tmp, 0);
-    }
-    printf("\n");
-    }
-    } else {
-
-#line 57 "build.zx"
-    {
-        Value tmp;
-        tmp.type = TYPE_STRING;
-tmp.data.str_val = "❌ Compiling parser failed!";
-        print_value_rec(tmp, 0);
-    }
-    printf("\n");
-    }
-    } else {
-
-#line 60 "build.zx"
-    {
-        Value tmp;
-        tmp.type = TYPE_STRING;
-tmp.data.str_val = "❌ Compiling lexer failed!";
-        print_value_rec(tmp, 0);
-    }
-    printf("\n");
-    }
-    } else {
-
-#line 63 "build.zx"
-    {
-        Value tmp;
-        tmp.type = TYPE_STRING;
-tmp.data.str_val = "❌ Flex failed!";
-        print_value_rec(tmp, 0);
-    }
-    printf("\n");
-    }
-    } else {
-
-#line 66 "build.zx"
-    {
-        Value tmp;
-        tmp.type = TYPE_STRING;
-tmp.data.str_val = "❌ Bison failed!";
-        print_value_rec(tmp, 0);
-    }
-    printf("\n");
-    }
-
-#line 68 "build.zx"
+#line 40 "build.zx"
     } else if (is_truthy(eval_binary_op(command, 0, (Value){.type = TYPE_STRING, .data.str_val = "test"}))) {
 
-#line 69 "build.zx"
+#line 41 "build.zx"
     {
         Value tmp;
         tmp.type = TYPE_STRING;
@@ -495,11 +394,11 @@ tmp.data.str_val = "🧪 Running Zelx test suite...";
     }
     printf("\n");
 
-#line 71 "build.zx"
+#line 43 "build.zx"
     run_exec((Value){.type = TYPE_STRING, .data.str_val = "./run_tests.sh"});
     } else {
 
-#line 72 "build.zx"
+#line 44 "build.zx"
     {
         Value tmp;
         tmp.type = TYPE_STRING;

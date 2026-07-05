@@ -85,6 +85,13 @@ struct ValueNode* create_len_node(struct ValueNode* expr) {
     return node;
 }
 
+struct ValueNode* create_must_node(struct ValueNode* expr) {
+    struct ValueNode* node = malloc(sizeof(struct ValueNode));
+    node->type = 11;
+    node->index_expr = expr;
+    return node;
+}
+
 struct AssignmentNode* create_assign_node(char* name, struct ValueNode* value, int is_const, int line_no) {
     struct AssignmentNode* node = malloc(sizeof(struct AssignmentNode));
     node->name = name;
@@ -303,6 +310,18 @@ void codegen_init(const char* filename) {
     fprintf(output_file, "    return res;\n");
     fprintf(output_file, "}\n\n");
 
+    // Must helper
+    fprintf(output_file, "Value run_must(Value v) {\n");
+    fprintf(output_file, "    if (v.type == TYPE_INT && v.data.int_val != 0) {\n");
+    fprintf(output_file, "        fprintf(stderr, \"Runtime Error: must() assertion failed with exit code %%d\\n\", v.data.int_val);\n");
+    fprintf(output_file, "        exit(1);\n");
+    fprintf(output_file, "    } else if (v.type == TYPE_BOOL && v.data.bool_val == 0) {\n");
+    fprintf(output_file, "        fprintf(stderr, \"Runtime Error: must() assertion failed (false)\\n\");\n");
+    fprintf(output_file, "        exit(1);\n");
+    fprintf(output_file, "    }\n");
+    fprintf(output_file, "    return v;\n");
+    fprintf(output_file, "}\n\n");
+
     // Comparison helper
     fprintf(output_file, "Value eval_binary_op(Value left, int op, Value right) {\n");
     fprintf(output_file, "    Value res;\n");
@@ -466,13 +485,18 @@ static void codegen_print_expr(struct ValueNode* val) {
                 fprintf(output_file, ")");
             }
             break;
-        case 9: // EXEC
+        case 9:
             fprintf(output_file, "run_exec(");
             codegen_print_expr(val->index_expr);
             fprintf(output_file, ")");
             break;
-        case 10: // LEN
+        case 10:
             fprintf(output_file, "eval_len(");
+            codegen_print_expr(val->index_expr);
+            fprintf(output_file, ")");
+            break;
+        case 11:
+            fprintf(output_file, "run_must(");
             codegen_print_expr(val->index_expr);
             fprintf(output_file, ")");
             break;
