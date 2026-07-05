@@ -77,4 +77,5 @@ print("--- Available commands ---")
 print(cmds_list[0], ":", cmds_desc[0])
 print(cmds_list[1], ":", cmds_desc[1])
 print(cmds_list[2], ":", cmds_desc[2])
+
 print(cmds_list[3], ":", cmds_desc[3])

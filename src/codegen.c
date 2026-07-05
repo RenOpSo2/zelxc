@@ -62,6 +62,22 @@ struct ValueNode* create_object_placeholder() {
     return node;
 }
 
+struct ValueNode* create_binary_op_node(int op, struct ValueNode* left, struct ValueNode* right) {
+    struct ValueNode* node = malloc(sizeof(struct ValueNode));
+    node->type = 8;
+    node->op = op;
+    node->left = left;
+    node->right = right;
+    return node;
+}
+
+struct ValueNode* create_exec_node(struct ValueNode* cmd_expr) {
+    struct ValueNode* node = malloc(sizeof(struct ValueNode));
+    node->type = 9;
+    node->index_expr = cmd_expr;
+    return node;
+}
+
 struct AssignmentNode* create_assign_node(char* name, struct ValueNode* value, int is_const, int line_no) {
     struct AssignmentNode* node = malloc(sizeof(struct AssignmentNode));
     node->name = name;
@@ -204,6 +220,127 @@ void codegen_init(const char* filename) {
     fprintf(output_file, "    return arr.data.array_val.elements[idx];\n");
     fprintf(output_file, "}\n\n");
     
+    // Truthiness helper
+    fprintf(output_file, "int is_truthy(Value v) {\n");
+    fprintf(output_file, "    switch (v.type) {\n");
+    fprintf(output_file, "        case TYPE_BOOL: return v.data.bool_val;\n");
+    fprintf(output_file, "        case TYPE_INT: return v.data.int_val != 0;\n");
+    fprintf(output_file, "        case TYPE_FLOAT: return v.data.float_val != 0.0;\n");
+    fprintf(output_file, "        case TYPE_STRING: return v.data.str_val && strlen(v.data.str_val) > 0;\n");
+    fprintf(output_file, "        default: return 0;\n");
+    fprintf(output_file, "    }\n");
+    fprintf(output_file, "}\n\n");
+    
+    // Addition helper
+    fprintf(output_file, "Value eval_add(Value left, Value right) {\n");
+    fprintf(output_file, "    Value res;\n");
+    fprintf(output_file, "    if (left.type == TYPE_STRING || right.type == TYPE_STRING) {\n");
+    fprintf(output_file, "        res.type = TYPE_STRING;\n");
+    fprintf(output_file, "        char l_buf[256] = \"\";\n");
+    fprintf(output_file, "        char r_buf[256] = \"\";\n");
+    fprintf(output_file, "        if (left.type == TYPE_INT) sprintf(l_buf, \"%%d\", left.data.int_val);\n");
+    fprintf(output_file, "        else if (left.type == TYPE_FLOAT) sprintf(l_buf, \"%%f\", left.data.float_val);\n");
+    fprintf(output_file, "        else if (left.type == TYPE_STRING) strcpy(l_buf, left.data.str_val);\n");
+    fprintf(output_file, "        else if (left.type == TYPE_BOOL) strcpy(l_buf, left.data.bool_val ? \"true\" : \"false\");\n");
+    fprintf(output_file, "        if (right.type == TYPE_INT) sprintf(r_buf, \"%%d\", right.data.int_val);\n");
+    fprintf(output_file, "        else if (right.type == TYPE_FLOAT) sprintf(r_buf, \"%%f\", right.data.float_val);\n");
+    fprintf(output_file, "        else if (right.type == TYPE_STRING) strcpy(r_buf, right.data.str_val);\n");
+    fprintf(output_file, "        else if (right.type == TYPE_BOOL) strcpy(r_buf, right.data.bool_val ? \"true\" : \"false\");\n");
+    fprintf(output_file, "        char* new_str = malloc(strlen(l_buf) + strlen(r_buf) + 1);\n");
+    fprintf(output_file, "        strcpy(new_str, l_buf);\n");
+    fprintf(output_file, "        strcat(new_str, r_buf);\n");
+    fprintf(output_file, "        res.data.str_val = new_str;\n");
+    fprintf(output_file, "    } else {\n");
+    fprintf(output_file, "        if (left.type == TYPE_FLOAT || right.type == TYPE_FLOAT) {\n");
+    fprintf(output_file, "            res.type = TYPE_FLOAT;\n");
+    fprintf(output_file, "            double l = (left.type == TYPE_INT) ? left.data.int_val : left.data.float_val;\n");
+    fprintf(output_file, "            double r = (right.type == TYPE_INT) ? right.data.int_val : right.data.float_val;\n");
+    fprintf(output_file, "            res.data.float_val = l + r;\n");
+    fprintf(output_file, "        } else {\n");
+    fprintf(output_file, "            res.type = TYPE_INT;\n");
+    fprintf(output_file, "            int l = (left.type == TYPE_BOOL) ? left.data.bool_val : left.data.int_val;\n");
+    fprintf(output_file, "            int r = (right.type == TYPE_BOOL) ? right.data.bool_val : right.data.int_val;\n");
+    fprintf(output_file, "            res.data.int_val = l + r;\n");
+    fprintf(output_file, "        }\n");
+    fprintf(output_file, "    }\n");
+    fprintf(output_file, "    return res;\n");
+    fprintf(output_file, "}\n\n");
+    
+    // Exec helper
+    fprintf(output_file, "Value run_exec(Value cmd) {\n");
+    fprintf(output_file, "    Value res;\n");
+    fprintf(output_file, "    res.type = TYPE_INT;\n");
+    fprintf(output_file, "    res.data.int_val = -1;\n");
+    fprintf(output_file, "    if (cmd.type == TYPE_STRING) {\n");
+    fprintf(output_file, "        res.data.int_val = system(cmd.data.str_val);\n");
+    fprintf(output_file, "    } else {\n");
+    fprintf(output_file, "        fprintf(stderr, \"Runtime Error: exec command must be a string\\n\");\n");
+    fprintf(output_file, "        exit(1);\n");
+    fprintf(output_file, "    }\n");
+    fprintf(output_file, "    return res;\n");
+    fprintf(output_file, "}\n\n");
+    
+    // Comparison helper
+    fprintf(output_file, "Value eval_binary_op(Value left, int op, Value right) {\n");
+    fprintf(output_file, "    Value res;\n");
+    fprintf(output_file, "    res.type = TYPE_BOOL;\n");
+    fprintf(output_file, "    res.data.bool_val = 0;\n");
+    fprintf(output_file, "    double l_num = 0, r_num = 0;\n");
+    fprintf(output_file, "    int is_numeric = 0;\n");
+    fprintf(output_file, "    if ((left.type == TYPE_INT || left.type == TYPE_FLOAT) && (right.type == TYPE_INT || right.type == TYPE_FLOAT)) {\n");
+    fprintf(output_file, "        is_numeric = 1;\n");
+    fprintf(output_file, "        l_num = (left.type == TYPE_INT) ? left.data.int_val : left.data.float_val;\n");
+    fprintf(output_file, "        r_num = (right.type == TYPE_INT) ? right.data.int_val : right.data.float_val;\n");
+    fprintf(output_file, "    }\n");
+    fprintf(output_file, "    switch(op) {\n");
+    fprintf(output_file, "        case 0: // EQ\n");
+    fprintf(output_file, "            if (is_numeric) {\n");
+    fprintf(output_file, "                res.data.bool_val = (l_num == r_num);\n");
+    fprintf(output_file, "            } else if (left.type == right.type) {\n");
+    fprintf(output_file, "                if (left.type == TYPE_STRING) {\n");
+    fprintf(output_file, "                    res.data.bool_val = (strcmp(left.data.str_val, right.data.str_val) == 0);\n");
+    fprintf(output_file, "                } else if (left.type == TYPE_BOOL) {\n");
+    fprintf(output_file, "                    res.data.bool_val = (left.data.bool_val == right.data.bool_val);\n");
+    fprintf(output_file, "                } else {\n");
+    fprintf(output_file, "                    res.data.bool_val = 0;\n");
+    fprintf(output_file, "                }\n");
+    fprintf(output_file, "            } else {\n");
+    fprintf(output_file, "                res.data.bool_val = 0;\n");
+    fprintf(output_file, "            }\n");
+    fprintf(output_file, "            break;\n");
+    fprintf(output_file, "        case 1: // NE\n");
+    fprintf(output_file, "            if (is_numeric) {\n");
+    fprintf(output_file, "                res.data.bool_val = (l_num != r_num);\n");
+    fprintf(output_file, "            } else if (left.type == right.type) {\n");
+    fprintf(output_file, "                if (left.type == TYPE_STRING) {\n");
+    fprintf(output_file, "                    res.data.bool_val = (strcmp(left.data.str_val, right.data.str_val) != 0);\n");
+    fprintf(output_file, "                } else if (left.type == TYPE_BOOL) {\n");
+    fprintf(output_file, "                    res.data.bool_val = (left.data.bool_val != right.data.bool_val);\n");
+    fprintf(output_file, "                } else {\n");
+    fprintf(output_file, "                    res.data.bool_val = 1;\n");
+    fprintf(output_file, "                }\n");
+    fprintf(output_file, "            } else {\n");
+    fprintf(output_file, "                res.data.bool_val = 1;\n");
+    fprintf(output_file, "            }\n");
+    fprintf(output_file, "            break;\n");
+    fprintf(output_file, "        case 2: // LT\n");
+    fprintf(output_file, "            if (is_numeric) res.data.bool_val = (l_num < r_num);\n");
+    fprintf(output_file, "            break;\n");
+    fprintf(output_file, "        case 3: // GT\n");
+    fprintf(output_file, "            if (is_numeric) res.data.bool_val = (l_num > r_num);\n");
+    fprintf(output_file, "            break;\n");
+    fprintf(output_file, "        case 4: // LE\n");
+    fprintf(output_file, "            if (is_numeric) res.data.bool_val = (l_num <= r_num);\n");
+    fprintf(output_file, "            break;\n");
+    fprintf(output_file, "        case 5: // GE\n");
+    fprintf(output_file, "            if (is_numeric) res.data.bool_val = (l_num >= r_num);\n");
+    fprintf(output_file, "            break;\n");
+    fprintf(output_file, "        case 6: // ADD\n");
+    fprintf(output_file, "            return eval_add(left, right);\n");
+    fprintf(output_file, "    }\n");
+    fprintf(output_file, "    return res;\n");
+    fprintf(output_file, "}\n\n");
+    
     // Recursive print helper
     fprintf(output_file, "void print_value_rec(Value v, int quoted) {\n");
     fprintf(output_file, "    switch(v.type) {\n");
@@ -256,6 +393,49 @@ void codegen_finish() {
     fclose(output_file);
 }
 
+static void codegen_print_expr(struct ValueNode* val) {
+    switch (val->type) {
+        case 0: // INT
+            fprintf(output_file, "(Value){.type = TYPE_INT, .data.int_val = %d}", val->int_val);
+            break;
+        case 1: // FLOAT
+            fprintf(output_file, "(Value){.type = TYPE_FLOAT, .data.float_val = %f}", val->float_val);
+            break;
+        case 2: // STRING
+            fprintf(output_file, "(Value){.type = TYPE_STRING, .data.str_val = \"%s\"}", val->str_val);
+            break;
+        case 3: // BOOL
+            fprintf(output_file, "(Value){.type = TYPE_BOOL, .data.bool_val = %d}", val->int_val);
+            break;
+        case 4:
+            fprintf(output_file, "(Value){.type = TYPE_ARRAY, .data.array_val.length = 0}");
+            break;
+        case 5:
+            fprintf(output_file, "(Value){.type = TYPE_OBJECT}");
+            break;
+        case 6: // INDEX_ACCESS
+            fprintf(output_file, "get_array_element(%s, ", val->str_val);
+            codegen_print_expr(val->index_expr);
+            fprintf(output_file, ")");
+            break;
+        case 7: // IDENTIFIER
+            fprintf(output_file, "%s", val->str_val);
+            break;
+        case 8: // BINARY_OP
+            fprintf(output_file, "eval_binary_op(");
+            codegen_print_expr(val->left);
+            fprintf(output_file, ", %d, ", val->op);
+            codegen_print_expr(val->right);
+            fprintf(output_file, ")");
+            break;
+        case 9: // EXEC
+            fprintf(output_file, "run_exec(");
+            codegen_print_expr(val->index_expr);
+            fprintf(output_file, ")");
+            break;
+    }
+}
+
 static void codegen_assign_value(const char* target, struct ValueNode* val) {
     switch (val->type) {
         case 0: // INT
@@ -304,18 +484,18 @@ static void codegen_assign_value(const char* target, struct ValueNode* val) {
             break;
         case 6: { // INDEX_ACCESS
             fprintf(output_file, "%s = get_array_element(%s, ", target, val->str_val);
-            if (val->index_expr->type == 0) { // INT literal
-                fprintf(output_file, "(Value){.type = TYPE_INT, .data.int_val = %d}", val->index_expr->int_val);
-            } else if (val->index_expr->type == 7) { // IDENTIFIER
-                fprintf(output_file, "%s", val->index_expr->str_val);
-            } else {
-                fprintf(output_file, "(Value){.type = TYPE_INT, .data.int_val = 0}");
-            }
+            codegen_print_expr(val->index_expr);
             fprintf(output_file, ");\n");
             break;
         }
         case 7: // IDENTIFIER
             fprintf(output_file, "%s = %s;\n", target, val->str_val);
+            break;
+        case 8: // BINARY_OP
+        case 9: // EXEC
+            fprintf(output_file, "%s = ", target);
+            codegen_print_expr(val);
+            fprintf(output_file, ";\n");
             break;
     }
 }
@@ -378,4 +558,26 @@ void codegen_print(struct ValueList* args, int line_no) {
         }
     }
     fprintf(output_file, "    printf(\"\\n\");\n");
+}
+
+void codegen_if_start(struct ValueNode* condition, int line_no) {
+    fprintf(output_file, "\n#line %d \"%s\"\n", line_no, source_filename);
+    fprintf(output_file, "    if (is_truthy(");
+    codegen_print_expr(condition);
+    fprintf(output_file, ")) {\n");
+}
+
+void codegen_else_if_start(struct ValueNode* condition, int line_no) {
+    fprintf(output_file, "\n#line %d \"%s\"\n", line_no, source_filename);
+    fprintf(output_file, "    } else if (is_truthy(");
+    codegen_print_expr(condition);
+    fprintf(output_file, ")) {\n");
+}
+
+void codegen_else_start() {
+    fprintf(output_file, "    } else {\n");
+}
+
+void codegen_if_end() {
+    fprintf(output_file, "    }\n");
 }

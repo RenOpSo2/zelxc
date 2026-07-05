@@ -1,5 +1,18 @@
 # Zelx Language Changelog
 
+## [Unreleased] - 2026-07-05
+
+### Added
+- **Conditional Control Flow (`if`, `else if`, `else`):** Added support for conditional branching blocks using curly braces `{}`. Supports nested and flat `else if` chains.
+- **Comparison Operators:** Added support for equality (`==`), inequality (`!=`), less than (`<`), greater than (`>`), less than or equal (`<=`), and greater than or equal (`>=`) operations.
+- **Parentheses Grouping:** Added expression grouping support `(value)` to allow overriding operator precedence.
+- **Runtime Expression Evaluation:** Implemented `eval_binary_op` in the C runtime to safely compare values dynamically (such as string content checking via `strcmp` and mixed integer/float comparisons).
+- **Runtime Truthiness Evaluation:** Implemented `is_truthy` to check the truthiness of any value type dynamically.
+- **Shell Command Execution (`exec`):** Added the built-in function `exec(cmd_string)` which runs arbitrary terminal shell commands at runtime (mapping to C's `system()`) and returns the command's exit status.
+- **Arithmetic & String Addition (`+`):** Added support for the `+` operator. Resolves to standard math addition for numeric types (`int` and `float`) and dynamic string concatenation (auto-formatting other types like numbers or booleans to string representation) if either operand is a string.
+- **Test Case `05_if_else.zx`:** Added to verify conditional logic and comparison operations.
+- **Test Case `06_exec_concat.zx`:** Added to verify shell commands execution, exit codes, and string concatenation.
+
 ## [Unreleased] - 2026-07-04
 
 ### Added

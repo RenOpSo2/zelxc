@@ -29,6 +29,7 @@ void yyerror(const char* s) {
 %token CONST PRINT LPAREN RPAREN
 %token ASSIGN COMMA COLON
 %token LBRACKET RBRACKET LBRACE RBRACE
+%token EQ NE LE GE LT GT IF ELSE PLUS EXEC
 %token <intval> INT_LIT BOOL_LIT
 %token <floatval> FLOAT_LIT
 %token <strval> STRING_LIT IDENTIFIER
@@ -38,6 +39,9 @@ void yyerror(const char* s) {
 %type <multi_assign> multi_assign
 %type <str_list> identifier_list
 %type <val_list> value_list array array_elements print_args
+
+%left EQ NE LT GT LE GE
+%left PLUS
 
 %start program
 
@@ -57,6 +61,45 @@ statement:
     | const_assign     { /* handled in const_assign */ }
     | multi_assign     { codegen_multi_assign($1); }
     | PRINT LPAREN print_args RPAREN { codegen_print($3, yylineno); }
+    | if_statement
+    ;
+
+if_statement:
+    if_header block elif_list else_clause_opt {
+        codegen_if_end();
+    }
+    ;
+
+if_header:
+    IF value {
+        codegen_if_start($2, yylineno);
+    }
+    ;
+
+elif_list:
+    elif_list else_if_header block
+    | /* empty */
+    ;
+
+else_if_header:
+    ELSE IF value {
+        codegen_else_if_start($3, yylineno);
+    }
+    ;
+
+else_clause_opt:
+    else_header block
+    | /* empty */
+    ;
+
+else_header:
+    ELSE {
+        codegen_else_start();
+    }
+    ;
+
+block:
+    LBRACE statement_list RBRACE
     ;
 
 single_assign:
@@ -114,6 +157,15 @@ value:
     | array       { $$ = create_array_value($1); }
     | object      { $$ = create_object_placeholder(); }
     | IDENTIFIER LBRACKET value RBRACKET { $$ = create_index_access_value($1, $3); }
+    | value EQ value { $$ = create_binary_op_node(0, $1, $3); }
+    | value NE value { $$ = create_binary_op_node(1, $1, $3); }
+    | value LT value { $$ = create_binary_op_node(2, $1, $3); }
+    | value GT value { $$ = create_binary_op_node(3, $1, $3); }
+    | value LE value { $$ = create_binary_op_node(4, $1, $3); }
+    | value GE value { $$ = create_binary_op_node(5, $1, $3); }
+    | value PLUS value { $$ = create_binary_op_node(6, $1, $3); }
+    | EXEC LPAREN value RPAREN { $$ = create_exec_node($3); }
+    | LPAREN value RPAREN { $$ = $2; }
     ;
 
 array:

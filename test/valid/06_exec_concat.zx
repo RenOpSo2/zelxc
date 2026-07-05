@@ -1,0 +1,22 @@
+# Concat, exec, and math addition test
+file_name = "test_run.txt"
+command = "echo 'Zelx Build success!' > " + file_name
+
+print("Command to run:", command)
+status = exec(command)
+print("Exec status:", status)
+
+cat_status = exec("cat " + file_name)
+print("Cat status:", cat_status)
+
+# Clean up
+rm_status = exec("rm " + file_name)
+print("Rm status:", rm_status)
+
+# Math addition test
+a = 10 + 20
+b = 1.5 + 2.5
+c = "Result: " + a
+print("Math int:", a)
+print("Math float:", b)
+print("Mixed string:", c)

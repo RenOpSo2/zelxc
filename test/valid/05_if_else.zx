@@ -1,0 +1,20 @@
+# If-else-if-else conditional block test
+command = "build"
+version = 1.0
+
+if command == "run" {
+    print("Command is run")
+} else if command == "build" {
+    print("Command is build")
+} else {
+    print("Command is unknown")
+}
+
+if version >= 1.0 {
+    print("Version is supported")
+} else {
+    print("Version is too old")
+}
+
+is_v = (version == 1.0)
+print("Is version 1.0:", is_v)

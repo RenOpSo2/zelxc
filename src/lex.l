@@ -13,8 +13,19 @@
 
 "const"               { return CONST; }
 "print"               { return PRINT; }
+"if"                  { return IF; }
+"else"                { return ELSE; }
+"exec"                { return EXEC; }
 "true"                { yylval.intval = 1; return BOOL_LIT; }
 "false"               { yylval.intval = 0; return BOOL_LIT; }
+
+"+"                   { return PLUS; }
+"=="                  { return EQ; }
+"!="                  { return NE; }
+"<="                  { return LE; }
+">="                  { return GE; }
+"<"                   { return LT; }
+">"                   { return GT; }
 
 "="                   { return ASSIGN; }
 ","                   { return COMMA; }
