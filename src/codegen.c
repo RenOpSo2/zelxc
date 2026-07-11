@@ -6,6 +6,23 @@
 static FILE* output_file;
 static const char* source_filename;
 
+#define MAX_DECLARED_VARS 1024
+static char* declared_vars[MAX_DECLARED_VARS];
+static int declared_var_count = 0;
+
+static int is_var_declared(const char* name) {
+    for (int i = 0; i < declared_var_count; i++) {
+        if (strcmp(declared_vars[i], name) == 0) return 1;
+    }
+    return 0;
+}
+
+static void mark_var_declared(const char* name) {
+    if (declared_var_count < MAX_DECLARED_VARS) {
+        declared_vars[declared_var_count++] = strdup(name);
+    }
+}
+
 struct ValueNode* create_int_value(int val) {
     struct ValueNode* node = malloc(sizeof(struct ValueNode));
     node->type = 0;
@@ -403,6 +420,17 @@ void codegen_init(const char* filename) {
     fprintf(output_file, "        case 9: // NOT\n");
     fprintf(output_file, "            res.data.bool_val = !is_truthy(left);\n");
     fprintf(output_file, "            break;\n");
+    fprintf(output_file, "        case 10: // SUB\n");
+    fprintf(output_file, "            if (left.type == TYPE_FLOAT || right.type == TYPE_FLOAT) {\n");
+    fprintf(output_file, "                res.type = TYPE_FLOAT;\n");
+    fprintf(output_file, "                double sl = (left.type == TYPE_INT) ? left.data.int_val : left.data.float_val;\n");
+    fprintf(output_file, "                double sr = (right.type == TYPE_INT) ? right.data.int_val : right.data.float_val;\n");
+    fprintf(output_file, "                res.data.float_val = sl - sr;\n");
+    fprintf(output_file, "            } else {\n");
+    fprintf(output_file, "                res.type = TYPE_INT;\n");
+    fprintf(output_file, "                res.data.int_val = left.data.int_val - right.data.int_val;\n");
+    fprintf(output_file, "            }\n");
+    fprintf(output_file, "            break;\n");
     fprintf(output_file, "    }\n");
     fprintf(output_file, "    return res;\n");
     fprintf(output_file, "}\n\n");
@@ -628,17 +656,19 @@ static void codegen_assign_value(const char* target, struct ValueNode* val) {
 
 void codegen_assign(struct AssignmentNode* node) {
     fprintf(output_file, "\n#line %d \"%s\"\n", node->line_no, source_filename);
-    fprintf(output_file, "    Value %s;\n", node->name);
+    if (!is_var_declared(node->name)) {
+        fprintf(output_file, "    Value %s;\n", node->name);
+        mark_var_declared(node->name);
+    }
     fprintf(output_file, "    ");
     codegen_assign_value(node->name, node->value);
-    fprintf(output_file, "    print_value(\"%s\", %s);\n", node->name, node->name);
 }
 
 void codegen_const_assign(struct AssignmentNode* node) {
     fprintf(output_file, "\n#line %d \"%s\"\n", node->line_no, source_filename);
-    // Langsung inisialisasi untuk const
     fprintf(output_file, "    const Value %s = {.type = ", node->name);
-    
+    mark_var_declared(node->name);
+
     switch(node->value->type) {
         case 0:
             fprintf(output_file, "TYPE_INT, .data.int_val = %d};\n", node->value->int_val);
@@ -653,18 +683,17 @@ void codegen_const_assign(struct AssignmentNode* node) {
             fprintf(output_file, "TYPE_BOOL, .data.bool_val = %d};\n", node->value->int_val);
             break;
     }
-    
-    // Debug print
-    fprintf(output_file, "    print_value(\"%s\", %s);\n", node->name, node->name);
 }
 
 void codegen_multi_assign(struct MultiAssignNode* node) {
     fprintf(output_file, "\n#line %d \"%s\"\n", node->line_no, source_filename);
     for (int i = 0; i < node->count; i++) {
-        fprintf(output_file, "    Value %s;\n", node->names[i]);
+        if (!is_var_declared(node->names[i])) {
+            fprintf(output_file, "    Value %s;\n", node->names[i]);
+            mark_var_declared(node->names[i]);
+        }
         fprintf(output_file, "    ");
         codegen_assign_value(node->names[i], node->values[i]);
-        fprintf(output_file, "    print_value(\"%s\", %s);\n", node->names[i], node->names[i]);
     }
 }
 

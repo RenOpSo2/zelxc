@@ -1,0 +1,12 @@
+x = -5
+print("negative:", x)
+
+y = 10 - 3
+print("subtraction:", y)
+
+z = -1 + 5
+print("neg plus:", z)
+
+a = 10
+b = a - 3
+print("var minus:", b)

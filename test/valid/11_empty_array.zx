@@ -1,0 +1,6 @@
+empty = []
+print("empty array:", empty)
+print("length:", len(empty))
+
+items = [1, 2, 3]
+print("items:", items)

@@ -27,6 +27,7 @@
 "false"               { yylval.intval = 0; return BOOL_LIT; }
 
 "+"                   { return PLUS; }
+"-"                   { return MINUS; }
 "=="                  { return EQ; }
 "!="                  { return NE; }
 "<="                  { return LE; }

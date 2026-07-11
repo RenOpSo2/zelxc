@@ -15,7 +15,7 @@ void yyerror(const char* s) {
 }
 %}
 
-%expect 2
+%expect 7
 
 %union {
     int intval;
@@ -31,7 +31,7 @@ void yyerror(const char* s) {
 %token CONST PRINT LPAREN RPAREN
 %token ASSIGN COMMA COLON
 %token LBRACKET RBRACKET LBRACE RBRACE
-%token EQ NE LE GE LT GT IF ELSE PLUS EXEC AND OR NOT LEN MUST HAS_FLAG GET_FLAG
+%token EQ NE LE GE LT GT IF ELSE PLUS MINUS EXEC AND OR NOT LEN MUST HAS_FLAG GET_FLAG
 %token <intval> INT_LIT BOOL_LIT
 %token <floatval> FLOAT_LIT
 %token <strval> STRING_LIT IDENTIFIER
@@ -45,8 +45,9 @@ void yyerror(const char* s) {
 %left OR
 %left AND
 %left EQ NE LT GT LE GE
-%left PLUS
+%left PLUS MINUS
 %right NOT
+%right UMINUS
 
 %start program
 
@@ -170,9 +171,11 @@ value:
     | value LE value { $$ = create_binary_op_node(4, $1, $3); }
     | value GE value { $$ = create_binary_op_node(5, $1, $3); }
     | value PLUS value { $$ = create_binary_op_node(6, $1, $3); }
+    | value MINUS value { $$ = create_binary_op_node(10, $1, $3); }
     | value AND value { $$ = create_binary_op_node(7, $1, $3); }
     | value OR value { $$ = create_binary_op_node(8, $1, $3); }
     | NOT value { $$ = create_binary_op_node(9, $2, NULL); }
+    | MINUS value %prec UMINUS { $$ = create_binary_op_node(10, create_int_value(0), $2); }
     | EXEC LPAREN value RPAREN { $$ = create_exec_node($3); }
     | LEN LPAREN value RPAREN { $$ = create_len_node($3); }
     | MUST LPAREN value RPAREN { $$ = create_must_node($3); }
@@ -184,6 +187,9 @@ value:
 array:
     LBRACKET array_elements RBRACKET {
         $$ = $2;
+    }
+    | LBRACKET RBRACKET {
+        $$ = NULL;
     }
     ;
 
